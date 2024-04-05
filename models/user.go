@@ -1,6 +1,10 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
@@ -8,4 +12,5 @@ type User struct {
 	Password  string    `form:"password" json:"password,omitempty"`
 	FirstName string    `form:"firstName" json:"firstName,omitempty"`
 	LastName  string    `form:"lastname" json:"lastname,omitempty"`
+	CreatedAt time.Time `form:"createdat" json:"createdat,omitempty"`
 }

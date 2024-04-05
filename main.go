@@ -13,7 +13,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%+v\n", storage)
+
+	fmt.Println(storage)
+
+	if err := storage.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	listenAddress := "localhost:8080"
 	server := api.NewServer(listenAddress, storage)
 	fmt.Println("Server is currently running on port: ", listenAddress)
