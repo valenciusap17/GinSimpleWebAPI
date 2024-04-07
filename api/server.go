@@ -19,5 +19,6 @@ func NewServer(listenAddres string, store repository.Storage) *Server {
 }
 
 func (s *Server) Start() error {
+	http.HandleFunc("/createUser", s.HandlePostUser)
 	return http.ListenAndServe(s.listenAddres, nil)
 }

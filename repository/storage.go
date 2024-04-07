@@ -73,10 +73,33 @@ func (s *PostgresStore) CreateUserTable() error {
 	return err
 }
 
-func (s *PostgresStore) CreateUser(*models.User) (*models.User, error) {
-	return nil, nil
+func (s *PostgresStore) CreateUser(data *models.User) (*models.User, error) {
+	queryResponse := new(models.User)
+
+	query := `insert into users 
+		(username, password, firstname, lastname, createdat)
+		values ($1, $2, $3, $4, $5)
+		returning id, username, password, firstname, lastname, createdat
+	`
+	err := s.db.QueryRow(
+		query,
+		data.Username,
+		data.Password,
+		data.FirstName,
+		data.LastName,
+		data.CreatedAt).Scan(&queryResponse.ID,
+		&queryResponse.Username,
+		&queryResponse.Password,
+		&queryResponse.FirstName,
+		&queryResponse.LastName,
+		&queryResponse.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return queryResponse, nil
 }
-func (s *PostgresStore) ReadUserById(uuid.UUID) (*models.User, error) {
+func (s *PostgresStore) ReadUserById(id uuid.UUID) (*models.User, error) {
 	return nil, nil
 
 }
