@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/google/uuid"
 	"github.com/valenciusap17/GoT_Auth/models"
 )
 
@@ -19,6 +20,29 @@ func (s *Server) GetAllUser() ([]*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	return response, nil
+}
 
+func (s *Server) GetUserById(id *uuid.UUID) (*models.User, error) {
+	response, err := s.store.ReadUserById(id)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func (s *Server) UpdateUser(data *models.CreateUserRequest, id *uuid.UUID) (*models.User, error) {
+	response, err := s.store.UpdateUser(data, id)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func (s *Server) DeleteUser(id *uuid.UUID) (*models.User, error) {
+	response, err := s.store.DeleteUser(id)
+	if err != nil {
+		return nil, err
+	}
 	return response, nil
 }

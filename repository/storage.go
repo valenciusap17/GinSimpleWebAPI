@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -16,9 +17,9 @@ import (
 type Storage interface {
 	CreateUser(*models.User) (*models.User, error)
 	ReadAllUser() ([]*models.User, error)
-	ReadUserById(uuid.UUID) (*models.User, error)
-	UpdateUser(*models.User) (*models.User, error)
-	DeleteUser(uuid.UUID) (*models.User, error)
+	ReadUserById(*uuid.UUID) (*models.User, error)
+	UpdateUser(*models.CreateUserRequest, *uuid.UUID) (*models.User, error)
+	DeleteUser(*uuid.UUID) (*models.User, error)
 }
 
 type PostgresStore struct {
@@ -68,7 +69,8 @@ func (s *PostgresStore) CreateUserTable() error {
 		password varchar(255),
 		firstname varchar(55),
 		lastname varchar(55),
-		createdat timestamp
+		createdat timestamp,
+		updatedat timestamp
 	)`
 	_, err := s.db.Exec(query)
 	return err
@@ -119,7 +121,8 @@ func (s *PostgresStore) ReadAllUser() ([]*models.User, error) {
 			&eachUser.Password,
 			&eachUser.FirstName,
 			&eachUser.LastName,
-			&eachUser.CreatedAt)
+			&eachUser.CreatedAt,
+			&eachUser.UpdatedAt)
 
 		if err != nil {
 			return nil, err
@@ -130,13 +133,75 @@ func (s *PostgresStore) ReadAllUser() ([]*models.User, error) {
 	return queryResponse, nil
 }
 
-func (s *PostgresStore) ReadUserById(id uuid.UUID) (*models.User, error) {
-	return nil, nil
+func (s *PostgresStore) ReadUserById(id *uuid.UUID) (*models.User, error) {
+	response := &models.User{}
+
+	query := `select * from users where id = $1`
+	err := s.db.QueryRow(query, id).Scan(
+		&response.ID,
+		&response.Username,
+		&response.Password,
+		&response.FirstName,
+		&response.LastName,
+		&response.CreatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
 
 }
-func (s *PostgresStore) UpdateUser(*models.User) (*models.User, error) {
-	return nil, nil
+func (s *PostgresStore) UpdateUser(data *models.CreateUserRequest, id *uuid.UUID) (*models.User, error) {
+	response := &models.User{}
+
+	query := `udpate users 
+		set username = $1, password $2, firstname = $3, lastname = $4, updatedat = $5
+		where id = $6
+		returning id, username, password, firstname, lastname, createdat, updatedat
+	`
+
+	err := s.db.QueryRow(query,
+		data.Username,
+		data.Password,
+		data.FirstName,
+		data.LastName,
+		time.Now().UTC(),
+		id).Scan(
+		&response.ID,
+		&response.Username,
+		&response.Password,
+		&response.FirstName,
+		&response.LastName,
+		&response.CreatedAt,
+		&response.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }
-func (s *PostgresStore) DeleteUser(uuid.UUID) (*models.User, error) {
-	return nil, nil
+func (s *PostgresStore) DeleteUser(id *uuid.UUID) (*models.User, error) {
+	response := &models.User{}
+
+	query := `delete from users 
+		where id = $1
+		returning id, username, password, firstname, lastname, createdat, updatedat
+	`
+
+	err := s.db.QueryRow(query, id).Scan(
+		&response.ID,
+		&response.Username,
+		&response.Password,
+		&response.FirstName,
+		&response.LastName,
+		&response.CreatedAt,
+		&response.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }
