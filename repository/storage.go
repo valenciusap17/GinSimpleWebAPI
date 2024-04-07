@@ -15,6 +15,7 @@ import (
 
 type Storage interface {
 	CreateUser(*models.User) (*models.User, error)
+	ReadAllUser() ([]*models.User, error)
 	ReadUserById(uuid.UUID) (*models.User, error)
 	UpdateUser(*models.User) (*models.User, error)
 	DeleteUser(uuid.UUID) (*models.User, error)
@@ -99,6 +100,36 @@ func (s *PostgresStore) CreateUser(data *models.User) (*models.User, error) {
 
 	return queryResponse, nil
 }
+
+func (s *PostgresStore) ReadAllUser() ([]*models.User, error) {
+	query := `select * from users`
+
+	response, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	queryResponse := []*models.User{}
+
+	for response.Next() {
+		eachUser := new(models.User)
+		err := response.Scan(
+			&eachUser.ID,
+			&eachUser.Username,
+			&eachUser.Password,
+			&eachUser.FirstName,
+			&eachUser.LastName,
+			&eachUser.CreatedAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		queryResponse = append(queryResponse, eachUser)
+	}
+	return queryResponse, nil
+}
+
 func (s *PostgresStore) ReadUserById(id uuid.UUID) (*models.User, error) {
 	return nil, nil
 
