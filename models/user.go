@@ -6,6 +6,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type UserIdRequest struct {
+	Id uuid.UUID `form:"id" json:"id,omitempty"`
+}
+
 type UpdateUserRequest struct {
 	Id       uuid.UUID         `form:"id" json:"id,omitempty"`
 	UserData CreateUserRequest `form:"userdata" json:"userdata,omitempty"`

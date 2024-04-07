@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/valenciusap17/GoT_Auth/models"
 )
 
@@ -53,14 +52,14 @@ func (s *Server) HandleGetAllUSer(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleGetUSerById(w http.ResponseWriter, r *http.Request) {
-	id := new(uuid.UUID)
+	id := &models.UserIdRequest{}
 
 	if err := json.NewDecoder(r.Body).Decode(id); err != nil {
-		log.Fatal(err)
+		log.Fatal("inkah? ", err)
 		return
 	}
 
-	response, err := s.GetUserById(id)
+	response, err := s.GetUserById(&id.Id)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -102,13 +101,13 @@ func (s *Server) HandleUpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {
-	queryData := new(uuid.UUID)
+	queryData := new(models.UserIdRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(queryData); err != nil {
 		log.Fatal(err)
 		return
 	}
-	response, err := s.DeleteUser(queryData)
+	response, err := s.DeleteUser(&queryData.Id)
 	if err != nil {
 		log.Fatal(err)
 		return

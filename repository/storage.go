@@ -143,7 +143,8 @@ func (s *PostgresStore) ReadUserById(id *uuid.UUID) (*models.User, error) {
 		&response.Password,
 		&response.FirstName,
 		&response.LastName,
-		&response.CreatedAt)
+		&response.CreatedAt,
+		&response.UpdatedAt)
 
 	if err != nil {
 		return nil, err
@@ -155,8 +156,8 @@ func (s *PostgresStore) ReadUserById(id *uuid.UUID) (*models.User, error) {
 func (s *PostgresStore) UpdateUser(data *models.CreateUserRequest, id *uuid.UUID) (*models.User, error) {
 	response := &models.User{}
 
-	query := `udpate users 
-		set username = $1, password $2, firstname = $3, lastname = $4, updatedat = $5
+	query := `update users 
+		set username = $1, password = $2, firstname = $3, lastname = $4, updatedat = $5
 		where id = $6
 		returning id, username, password, firstname, lastname, createdat, updatedat
 	`
